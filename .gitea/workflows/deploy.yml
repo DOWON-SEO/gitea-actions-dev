@@ -1,0 +1,35 @@
+name: Build Server
+
+on:
+    push:
+        branches: [test]
+
+jobs:
+    build_and_push:
+        runs-on: ubuntu-20.04
+
+        steps:
+            - name: Setting authentication keys
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{secrets.DEPLOYER_PUBLIC}}" > ~/.ssh/public
+                  echo "${{secrets.DEPLOYER_PRIVATE}}" > ~/.ssh/private
+                  chmod 600 ~/.ssh/private
+
+            - name: Checkout and deploy with ssh
+              run: |
+                  ssh-keyscan -H ${{secrets.SERVER_IP}} >> ~/.ssh/known_hosts
+                  ssh -T -i ~/.ssh/private deployer@${{secrets.SERVER_IP}} << EOF
+                  cd ~/gitea-actions-dev
+                  git fetch
+                  git checkout test
+                  docker compose up -d
+                  EOF
+
+# 계정 생성, docker 그룹 추가, ssh 키 생성
+
+# secrets에서 ssh 키 값 복사
+# ssh 접속
+
+# git clone
+# docker compose up -d
