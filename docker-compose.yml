@@ -2,6 +2,7 @@ version: "3"
 services:
     # Express 앱 서비스
     app:
+        image: seo/gitea-actions-dev:app
         build:
             context: . # Dockerfile이 있는 디렉토리
         expose:

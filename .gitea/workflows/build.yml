@@ -1,0 +1,45 @@
+name: Quick Build and Deploy
+
+on:
+    push:
+        branches: [test]
+
+jobs:
+    build_and_push:
+        runs-on: ubuntu-20.04
+
+        steps:
+            - name: Install Docker
+              run: |
+                  apt-get update
+                  apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+                  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+                  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+                  apt-get update
+                  apt-get install -y docker-ce docker-ce-cli containerd.io
+
+            - name: Start Docker
+              run: service docker start
+
+            - name: Install Docker Compose
+              run: |
+                  curl -L "https://github.com/docker/compose/releases/download/1.28.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                  chmod +x /usr/local/bin/docker-compose
+
+            - name: Checkout repository
+              run: git clone http://seo:${{secrets.ACCESS_TOKEN}}@192.168.0.200:10000/Seo/gitea-actions-dev.git
+
+            - name: Set environmental variables
+              run: echo "${{secrets.ENV_PRODUCTION}}" > .env
+              working-directory: gitea-actions-dev
+
+            - name: Docker Compose build
+              run: docker compose build
+              working-directory: gitea-actions-dev
+
+            - name: Login to DockerHub
+              run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            - name: Push to DockerHub
+              run: docker compose push ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.REPOSITORY_NAME}}
+              working-directory: gitea-actions-dev

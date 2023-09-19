@@ -1,4 +1,4 @@
-name: Build Server
+name: Build container image
 
 on:
     push:
@@ -20,6 +20,7 @@ jobs:
               run: |
                   ssh-keyscan -H ${{secrets.SERVER_IP}} >> ~/.ssh/known_hosts
                   ssh -T -i ~/.ssh/private deployer@${{secrets.SERVER_IP}} << EOF
+                  echo "${{secrets.ENV_PRODUCTION}}" > ~/gitea-actions-dev/.env
                   cd ~/gitea-actions-dev
                   git fetch
                   git checkout test
@@ -33,3 +34,13 @@ jobs:
 
 # git clone
 # docker compose up -d
+
+# --------
+# build.yml
+# 1. 코드 불러오기
+# 2. 도커 컨테이너 빌드하기
+# 3. 도커허브 로그인 후 이미지 업로드
+# --------
+# deploy.yml
+# 1. ssh로 홈서버 접속
+# 2. nginx 컨테이너 재실행
