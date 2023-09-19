@@ -41,5 +41,5 @@ jobs:
               run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
             - name: Push to DockerHub
-              run: docker compose push ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.REPOSITORY_NAME}}
+              run: docker compose push
               working-directory: gitea-actions-dev
