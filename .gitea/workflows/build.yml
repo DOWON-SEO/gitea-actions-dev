@@ -1,0 +1,16 @@
+name: Build Server
+
+on:
+    push:
+        branches: [test]
+
+jobs:
+    build_and_push:
+        runs-on: host
+
+        steps:
+            - name: Checkout code
+              run: git clone "${{secrets.GIT_REPOSITORY}}.git"
+
+            - name: Start Docker Compose
+              run: docker compose up -d
